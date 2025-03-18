@@ -8,12 +8,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class ParkingTest {
+class ParkingTest {
 
     Parking parking;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         parking = new Parking("Parking de la Plaza", 100);
     }
 
@@ -88,7 +88,7 @@ public class ParkingTest {
     //    | Caso de prueba | Clases de equivalencia | matricula | esVIP | Resultado esperado |
     //    |----------------|----------------------- |-----------|-------|--------------------|
     //    | CP1            | V1, V2                 | "0000BBB" | true  | true               |
-    //    | CP2            | V1, NV8                | "0000BBB" | false | true               |
+    //    | CP2            | V1,  VV9               | "0000BBB" | true  | matricula repetida |               |
     //    | CP3            | NV2, V2                | null      | true  | IllegalArgumentException |
     //    | CP4            | NV3, V2                | ""        | true  | IllegalArgumentException |
     //    | CP5            | NV4, V2                | "0000 BB" | true  | IllegalArgumentException |
@@ -96,17 +96,18 @@ public class ParkingTest {
     //    | CP7            | NV6, V2                | "0000bbb" | true  | IllegalArgumentException |
 
     @Test
-    public void testRegistrarAbonadoMatriculaValidaEsVip() {
+    void testRegistrarAbonadoMatriculaValidaEsVip() {
         assertTrue(parking.registrarAbonado("1234BBC", true));
     }
 
     @Test
-    public void testRegistrarAbonadoMatriculaValidaNoEsVip() {
-        assertTrue(parking.registrarAbonado("1234BBC", false));
+    void testRegistrarAbonadoMatriculaValidaRepetida() {
+        parking.registrarAbonado("1234BBC", true);
+        assertFalse(parking.registrarAbonado("1234BBC", true));
     }
-
+    
     @Test
-    public void testRegistrarAbonadoMatriculaNulaEsVip() {
+    void testRegistrarAbonadoMatriculaNulaEsVip() {
         IllegalArgumentException thrown = assertThrows(
             IllegalArgumentException.class,
             () -> parking.registrarAbonado(null, true),
@@ -116,7 +117,7 @@ public class ParkingTest {
     }
 
     @Test
-    public void testRegistrarAbonadoMatriculaVaciaEsVip() {
+    void testRegistrarAbonadoMatriculaVaciaEsVip() {
         IllegalArgumentException thrown = assertThrows(
             IllegalArgumentException.class,
             () -> parking.registrarAbonado("", true),
@@ -126,7 +127,7 @@ public class ParkingTest {
     }
 
     @Test
-    public void testRegistrarAbonadoMatriculaMatriculaConEspaciosEsVip() {
+    void testRegistrarAbonadoMatriculaMatriculaConEspaciosEsVip() {
         IllegalArgumentException thrown = assertThrows(
             IllegalArgumentException.class,
             () -> parking.registrarAbonado("0000 BB", true),
@@ -136,7 +137,7 @@ public class ParkingTest {
     }
 
     @Test
-    public void testRegistrarAbonadoMatriculaMatriculaConLetraInicialEsVip() {
+    void testRegistrarAbonadoMatriculaMatriculaConLetraInicialEsVip() {
         IllegalArgumentException thrown = assertThrows(
             IllegalArgumentException.class,
             () -> parking.registrarAbonado("A000BBB", true),
@@ -146,10 +147,20 @@ public class ParkingTest {
     }
 
     @Test
-    public void testRegistrarAbonadoMatriculaMatriculaEnMinusculasEsVip() {
+    void testRegistrarAbonadoMatriculaMatriculaEnMinusculasEsVip() {
         IllegalArgumentException thrown = assertThrows(
             IllegalArgumentException.class,
             () -> parking.registrarAbonado("0000bbb", true),
+            "Se esperaba una IllegalArgumentException"
+        );
+        assertTrue(thrown.getMessage().contains("Formato de matrícula incorrecto"));
+    }
+    
+    @Test
+    void testRegistrarAbonadoMatriculaVocalesMayusculasEsVip() {
+        IllegalArgumentException thrown = assertThrows(
+            IllegalArgumentException.class,
+            () -> parking.registrarAbonado("0000AAA", true),
             "Se esperaba una IllegalArgumentException"
         );
         assertTrue(thrown.getMessage().contains("Formato de matrícula incorrecto"));
@@ -158,23 +169,22 @@ public class ParkingTest {
 
     //Otros tests
     @Test
-    public void testRegistrarAbonado() {
+    void testRegistrarAbonado() {
         assertTrue(parking.registrarAbonado("1234BBC", true));
         assertFalse(parking.registrarAbonado("1234BBC", false));
     }
 
     @Test
-    public void testEsAbonadoVip() {
+    void testEsAbonadoVip() {
         parking.registrarAbonado("1234BBC", true);
         assertTrue(parking.esAbonadoVip("1234BBC"));
         assertFalse(parking.esAbonadoVip("5678DDF"));
     }
 
     @Test
-    public void testCalcularTarifa() {
+    void testCalcularTarifa() {
         assertEquals(6.0, parking.calcularTarifa(2, 30, false, false), 0.01);
         assertEquals(4.80, parking.calcularTarifa(3, 15, true, false), 0.01);
         assertEquals(2, parking.calcularTarifa(1, 45, false, true), 0.01);
     }
-
 }
